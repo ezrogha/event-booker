@@ -41,6 +41,7 @@ module.exports = buildSchema(`
 		createEvent(eventInput: EventInput): Event!
 		createUser(userInput: UserInput): User!
 		createBooking(eventId: ID): Booking!
+		cancelBooking(bookingId: ID): Event!
 	}
 	schema {
 		query: RootQuery
