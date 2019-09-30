@@ -15,6 +15,7 @@ app.use(
   })
 );
 
+// eslint-disable-next-line no-undef
 const { DB_NAME, DB_USER, DB_PASSWORD } = process.env;
 
 mongoose
