@@ -13,12 +13,23 @@ const spreadEvent = async eventIds => {
   try {
     const events = await Event.find({ _id: { $in: eventIds } });
     return events.map(event => {
-      return { ...event._doc };
+      return { ...event };
     });
   } catch (err) {
     throw err;
   }
 };
+
+const spreadSingleEvent = async eventId => {
+  try {
+    const event = await Event.findById(eventId);
+    return {
+      ...event._doc
+    }
+  } catch (err) {
+    throw err
+  }
+}
 
 const spreadCreator = async creatorId => {
   try {
@@ -104,6 +115,23 @@ app.use(
             creator: spreadCreator.bind(this, event.creator)
           };
         });
+      },
+      createBooking: async args => {
+        const creatorId = '5d88e8a614cb2178fa2690fd';
+        try {
+          const newBooking = new Booking({
+            event: args.eventId,
+            user: creatorId
+          });
+          const result = await newBooking.save();
+          return {
+            ...result._doc,
+            user: spreadCreator.bind(this, creatorId),
+            event: spreadSingleEvent.bind(this, args.eventId),
+          };
+        } catch (err) {
+          throw err;
+        }
       }
     },
     graphiql: true
