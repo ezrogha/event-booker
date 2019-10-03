@@ -1,16 +1,6 @@
 const User = require('../../models/User');
 const bcrypt = require('bcrypt');
-// const spreadEvent = async eventIds => {
-//   try {
-//     const events = await Event.find({ _id: { $in: eventIds } });
-//     return events.map(event => {
-//       return { ...event };
-//     });
-//   } catch (err) {
-//     console.log(err);
-//     throw err;
-//   }
-// };
+const jwt = require('jsonwebtoken');
 
 module.exports = {
   createUser: async ({ userInput: { email, password } }) => {
@@ -38,12 +28,32 @@ module.exports = {
       const users = await User.find().populate('createdEvents');
       return users.map(user => {
         return {
-          ...user._doc,
+          ...user._doc
         };
       });
     } catch (err) {
       console.log(err);
       throw err;
     }
+  },
+  login: async ({ email, password }) => {
+		const user = await User.findOne({ email: email });
+    if (!user) {
+      throw new Error('User doesnot exist');
+		}
+		
+    const isPassCorrect = await bcrypt.compare(password, user.password);
+    if (!isPassCorrect) {
+      throw new Error('Password is Incorrect');
+		}
+		const userId = user.id;
+    const token = await jwt.sign({ userId }, 'toughcode', {
+      expiresIn: '1h'
+    });
+    return {
+      userId,
+      token,
+      tokenExpiration: 1
+    };
   }
 };
